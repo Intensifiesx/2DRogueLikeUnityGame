@@ -45,7 +45,7 @@ def scatter_plot():
     
     plot.ylabel('Files')
     plot.xlabel('Weeks')
-    plot.legend(loc='upper left', bbox_to_anchor=(1,1))
+    plot.legend(loc='upper left', bbox_to_anchor=(0,1))
     plot.show()
     
     
