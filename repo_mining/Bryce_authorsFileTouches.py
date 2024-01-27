@@ -1,6 +1,7 @@
 import json
 import requests
 import csv
+from datetime import datetime
 
 import os
 
@@ -45,13 +46,20 @@ def countfiles(dictfiles, lsttokens, repo):
                 shaUrl = 'https://api.github.com/repos/' + repo + '/commits/' + sha
                 shaDetails, ct = github_auth(shaUrl, lsttokens, ct)
                 filesjson = shaDetails['files']
+                repoUrl = 'https://api.github.com/repos/' + repo
+                repoDetails, ct = github_auth(repoUrl, lsttokens, ct)
+                creation_date = repoDetails['created_at']
                 for filenameObj in filesjson:
                     filename = filenameObj['filename']
                     commitjson = shaDetails['commit']
                     authorjson = commitjson['author']
                     name = authorjson['name']
                     date = authorjson['date']
-                    tuple = (filename,name,date)
+                    date_obj = datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
+                    creation_date_obj = datetime.strptime(creation_date, '%Y-%m-%dT%H:%M:%SZ')
+                    diff = date_obj - creation_date_obj
+                    week = diff.days // 7
+                    tuple = (filename,name,week)
                     dictfiles[counter] = tuple
                     counter+=1
                     print(tuple)
@@ -70,7 +78,7 @@ repo = 'scottyab/rootbeer'
 # Remember to empty the list when going to commit to GitHub.
 # Otherwise they will all be reverted and you will have to re-create them
 # I would advise to create more than one token for repos with heavy commits
-lstTokens = ["placeholder"] #Needs to be replaced with github token to work
+lstTokens = ["temp"] #Needs to be replaced with github token to work
 
 dictfiles = dict()
 countfiles(dictfiles, lstTokens, repo)
@@ -79,7 +87,7 @@ print('Total number of Touches: ' + str(len(dictfiles)))
 file = repo.split('/')[1]
 # change this to the path of your file
 fileOutput = 'data/file_author_touches' + file + '.csv'
-rows = ["Touch Index", "Filename", "Author", "Date"]
+rows = ["Touch Index", "Filename", "Author", "Week"]
 fileCSV = open(fileOutput, 'w')
 writer = csv.writer(fileCSV)
 writer.writerow(rows)
