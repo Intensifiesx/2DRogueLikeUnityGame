@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.dates import date2num
 
-file_path = 'repo_miningrootbeer_authors.csv'  # I will upload the csv file in the repo but you should update with your actual file path for grading
+file_path = 'data/file_rootbeer_contributors.csv'  #assume grade from the repo
 with open(file_path, 'r') as csvfile:
     reader = csv.DictReader(csvfile)
     data = [row for row in reader]
