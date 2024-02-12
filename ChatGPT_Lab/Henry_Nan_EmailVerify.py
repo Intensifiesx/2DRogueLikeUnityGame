@@ -1,13 +1,7 @@
+import re # Import the regular expression module
+
 def validate_email(email):
-    if '@' in email: # Check if '@' is in the email
-        if '.' in email: # Check if '.' is in the email
-            if email.count('@') == 1 and email.count('.') >= 1:
-                return True # If the email has only one '@' and at least one '.'
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
-    
-# How to make this function more efficient?
+    # Regular expression pattern for basic email validation
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(pattern, email))
+# The regular expression pattern is a string that represents the pattern of the email address.
