@@ -9,3 +9,5 @@ def validate_email(email):
             return False
     else:
         return False
+    
+# How to make this function more efficient?
