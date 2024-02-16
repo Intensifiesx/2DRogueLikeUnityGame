@@ -1,4 +1,4 @@
-//external libraries that must be downloaded and imported in to the project, be in through a tree of folders, or cmake
+//external libraries that must be downloaded and imported in to the project, be in through a tree of folders, or
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
