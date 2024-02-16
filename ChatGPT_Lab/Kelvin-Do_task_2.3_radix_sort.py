@@ -1,38 +1,32 @@
-import random,time
+import random
+import time
 
-from random import randint
+# Generate a list of 23 random numbers between 1 and 1212
+numbers = [random.randint(1, 1212) for _ in range(23)]
 
-A=[random.randint(1,1212) for i in range(23)]
+# Determine the length of the maximum number in the list
+max_length = len(str(max(numbers)))
 
+print("Maximum number length:", max_length)
+print("Original list:", numbers)
 
-length = len(str(max(A)))
+start_time = time.time()
 
-print(length) 
+# Initialize a list of lists to hold numbers based on their digits
+buckets = [[] for _ in range(10)]
 
-rang = 10
+# Distribute numbers into buckets based on their digits
+for digit_position in range(max_length):
+    for num in numbers:
+        digit = num // (10 ** digit_position) % 10
+        buckets[digit].append(num)
 
-print(A)
+# Reconstruct the list by concatenating numbers from all buckets
+numbers.clear()
+for bucket in buckets:
+    numbers.extend(bucket)
 
-start=time.time()
+end_time = time.time()
 
-for i in range(length):
-
-    B = [[] for k in range(rang)]
-
-for x in A:
-
-    figure =x // (10**i) % 10
-
-    B[figure].append(x)
-
-A = []
-
-for k in range(rang):
-
-    A+=B[k]
-
-end=time.time()
-
-print(end-start)
-
-print(A)
+print("Time taken:", end_time - start_time)
+print("Sorted list:", numbers)
