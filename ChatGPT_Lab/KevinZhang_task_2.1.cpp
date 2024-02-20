@@ -1,17 +1,24 @@
 #include <iostream>
 
 int factorial(int n) {
-    if (n == 0) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
+    int result = 1;
+    for (int i = 1; i <= n; ++i) {
+        result *= i;
     }
+    return result;
 }
 
 int main() {
     int number;
     std::cout << "Enter a number: ";
     std::cin >> number;
-    std::cout << "Factorial of " << number << " is " << factorial(number) << std::endl;
+
+    // Check for negative input
+    if (number < 0) {
+        std::cout << "Factorial is not defined for negative numbers." << std::endl;
+    } else {
+        std::cout << "Factorial of " << number << " is " << factorial(number) << std::endl;
+    }
+    
     return 0;
 }
