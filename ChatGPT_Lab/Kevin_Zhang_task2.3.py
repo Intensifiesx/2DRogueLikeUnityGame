@@ -1,8 +1,8 @@
 import numpy as np
 
-def complex_matrix_operation(matrix):
+def optimized_complex_matrix_operation(matrix):
     """
-    Perform a complex operation on a square matrix.
+    Perform a complex operation on a square matrix more efficiently.
 
     Args:
         matrix (np.array): A square numpy array representing the matrix.
@@ -10,9 +10,7 @@ def complex_matrix_operation(matrix):
     Returns:
         np.array: The result of the complex matrix operation.
     """
-    n = matrix.shape[0]
-    result = np.zeros_like(matrix)
-    for i in range(n):
-        for j in range(n):
-            result[i, j] = sum(matrix[i, :] * matrix[:, j]) + np.linalg.det(matrix)
+    determinant = np.linalg.det(matrix)
+    # Compute the outer product of the matrix with itself and then add the determinant
+    result = matrix @ matrix.T + determinant
     return result
