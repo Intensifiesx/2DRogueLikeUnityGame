@@ -1,58 +1,41 @@
-import discord, os, os.path
-from discord.ext import commands, tasks
+import discord
+import os
 from dotenv import load_dotenv
 
-class Bot(commands.Bot):
+# Define a dictionary mapping keywords to emoji names
+emoji_mapping = {
+    'ion': {'name': 'ion', 'animated': True},
+    'amogus': {'name': 'amogus', 'animated': True},
+    'brody': {'name': 'brody', 'animated': False}
+}
+
+class Bot(discord.Client):
     def __init__(self):
-        intents = discord.Intents.all()
-        super().__init__(command_prefix='!', intents=intents, help_command=None)
+        super().__init__()
         self.synced = False
-    
-    async def syncing(self):
-        if not self.synced:
-            await self.tree.sync()
-            self.synced = True
-        print(f"Synced slash commands for {self.user}.")   
-        
-    async def on_command_error(self, ctx, error):
-        await ctx.reply(error, ephemeral=True)
+
+    async def on_ready(self):
+        print(f'Logged in as {self.user.name}')
+
+    async def on_message(self, message):
+        alshor_user_id = int(os.getenv("ALSHOR"))
+        if message.author.id == alshor_user_id:
+            if '<@1130190164682080369>' in message.content.lower():
+                for keyword, emoji_info in emoji_mapping.items():
+                    if emoji_info['name'] in message.content.lower() and emoji_info['animated']:
+                        await self.add_emoji_reaction(message, emoji_info['name'])
+        elif "<@1164059112737353798>" in message.content:
+            await message.channel.send("fuck you.")
+        else:
+            for keyword, emoji_info in emoji_mapping.items():
+                if keyword in message.content.lower():
+                    await self.add_emoji_reaction(message, emoji_info['name'], emoji_info['animated'])
+
+    async def add_emoji_reaction(self, message, emoji_name, animated=False):
+        emojis = [emoji for emoji in message.guild.emojis if emoji_name in emoji.name and (emoji.animated if animated else not emoji.animated)]
+        for emoji in emojis:
+            await message.add_reaction(emoji)
 
 load_dotenv()
 bot = Bot()
-partial_name = 'ion'
-amogus_name = 'amogus'
-brody_name = 'brody'
-emoji_id_dict = []
-
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name}')
-
-@bot.event
-async def on_message(message):
-    alshor_user_id = int(os.getenv("ALSHOR"))
-    #Checks for Alshor as a user and then checks if he has mentioned "@Team Uhhhhhh" or has said the word Geige.
-    if message.author.id == alshor_user_id:
-        if '<@1130190164682080369>' in message.content.lower():
-            animated_ion_emojis = [emoji for emoji in message.guild.emojis if partial_name in emoji.name and emoji.animated]
-            for items in animated_ion_emojis:
-                await message.add_reaction(items)
-    #Checks if the bot has been mentioned
-    elif "<@1164059112737353798>" in message.content:
-        await message.channel.send("fuck you.")
-    elif 'geige' in message.content.lower():
-        animated_ion_emojis = [emoji for emoji in message.guild.emojis if partial_name in emoji.name and emoji.animated]
-        for items in animated_ion_emojis:
-            await message.add_reaction(items)
-    elif 'amogus' in message.content.lower():
-        animated_ion_emojis = [emoji for emoji in message.guild.emojis if amogus_name in emoji.name and emoji.animated]
-        for items in animated_ion_emojis:
-            await message.add_reaction(items)
-    elif 'brody' in message.content.lower():
-        animated_ion_emojis = [emoji for emoji in message.guild.emojis if brody_name in emoji.name]
-        for items in animated_ion_emojis:
-            await message.add_reaction(items)
-    else:
-        print("No correct input found")
-                
 bot.run(os.getenv("DISCORD_TOKEN"))
