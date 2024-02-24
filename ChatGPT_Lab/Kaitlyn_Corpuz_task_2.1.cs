@@ -26,3 +26,11 @@ public Position WalkWest()
    player.Move("W");
    return player.NewPosition;
 }
+
+//Refactored code
+public Position MovePlayer(string direction)
+{
+   var player = GetPlayer();
+   player.Move(direction);
+   return player.NewPosition;
+}
