@@ -1,5 +1,5 @@
 
-# Updated: Documented Script: Grocery_List.py
+# Update: Documented Script: Grocery_List.py
 class GroceryItem:
     """
     Represents a single grocery item.
