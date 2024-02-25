@@ -1,20 +1,17 @@
 #include <exception>
 #include <iostream>
-class ErrorHandler
-{
-  ErrorHandler()
-  {
-  }
+#include <fstream>
+
+class ErrorHandler {
 public:
-  void logError(std::exception& e)
-  {
-    auto errorLogFIle = fopen("log.txt", "w");
-    fprintf(errorLogFIle, "Something has failed: %s", e.what());
-    fclose(errorLogFIle);
-  }
-  void printError(std::exception& e)
-  {
-    printf("Something has failed: %s", e.what());
-  }
-private:
+    ErrorHandler() = default;
+
+    void logError(const std::exception& e) {
+        std::ofstream errorLogFile("log.txt");
+        errorLogFile << "Something has failed: " << e.what() << std::endl;
+    }
+
+    void printError(const std::exception& e) {
+        std::cout << "Something has failed: " << e.what() << std::endl;
+    }
 };
