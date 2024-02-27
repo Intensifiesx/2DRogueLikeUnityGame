@@ -10,11 +10,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from keras.models import Sequential
 from keras.utils import to_categorical
-from sklearn.model_selection import KFold, train_test_split, learning_curve
-import matplotlib.pyplot as plt
-
+from sklearn.model_selection import KFold, train_test_split
 
 # Read in data into pandas
 data = pd.read_csv('MNIST_HW4.csv')
@@ -26,40 +23,38 @@ images = data.iloc[:, 1:].values.astype('float32') / 255
 images = images.reshape(-1, 28, 28, 1)
 labels = to_categorical(labels)
 
-# Define KFold
+# Split data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(images, labels)
+
+# Neural network model
+model = keras.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# 5-fold cross-validation
 kf = KFold(n_splits=5, shuffle=False)
 scores = []
 
-# Split our images and labels into test and train sets
-X_train, X_test, y_train, y_test = train_test_split(images, labels)
-
-# Neural network built based off VGG model
-model = Sequential([
-    layers.Conv2D(32, (3,3),activation='relu',input_shape=(28,28,1)),
-    layers.MaxPooling2D((2,2)),
-    layers.Conv2D(64, (3,3),activation='relu'),
-    layers.MaxPooling2D((2,2)),
-    layers.Conv2D(64,(3,3),activation='relu'),
-    layers.Flatten(),
-    layers.Dense(2048,activation='relu'),
-    layers.Dropout(0.5),
-    layers.Dense(10,activation='softmax')
-])
-# Compile our model
-model.compile(optimizer='adam',loss='mean_squared_error',metrics=['accuracy'])
-
-# 5-fold cv
-for i, (train_index, test_index) in enumerate(kf.split(X_train)):
-    
+for train_index, test_index in kf.split(X_train):
     X_train_cv, X_test_cv = X_train[train_index], X_train[test_index]
     y_train_cv, y_test_cv = y_train[train_index], y_train[test_index]
 
-    model.fit(X_train_cv, y_train_cv,epochs=10,batch_size=100)
+    model.fit(X_train_cv, y_train_cv, epochs=5, batch_size=128, verbose=1)
+    scores.append(model.evaluate(X_test_cv, y_test_cv, verbose=0)[1])
 
-    scores.append(model.evaluate(X_test_cv,y_test_cv)[1])
-# Scores for each fold
-for i in range(len(scores)):
-    print('Fold '+str(i+1),'Accuracy: ', scores[i] * 100)
+# Print accuracy for each fold
+for i, score in enumerate(scores):
+    print('Fold', i + 1, 'Accuracy:', score * 100)
 
-# Accuracy
-print('Accuracy: ', np.mean(scores) * 100)
+# Print overall accuracy
+print('Mean Accuracy: ', np.mean(scores) * 100)
