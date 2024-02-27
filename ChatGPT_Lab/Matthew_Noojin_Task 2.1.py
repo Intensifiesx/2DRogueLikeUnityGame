@@ -1,66 +1,44 @@
-#!/usr/bin/env python
-
-# Matthew Noojin
-# CS422, Prof Kang
-# 02/24/23
-
-# Import required libraries
+from sklearn.neighbors import NearestNeighbors
 import pandas as pd
-from scipy.spatial.distance import euclidean
-from collections import Counter
-import operator
-
-# Define a class of pairs to put into a list
-# This has the distance from test to training
-# and the label associated with the training value
-class distancePair:
-    def __init__(self, distance, label):
-        self.distance = distance
-        self.label = label
 
 # Number of nearest neighbors we are checking
 K = 9
 
-# Read train into panda
+# Read train into pandas DataFrame
 trainingData = pd.read_csv("MNIST_training.csv")
 
-# Read test into panda
+# Read test into pandas DataFrame
 testData = pd.read_csv("MNIST_test.csv")
 
-# Number of correctly classified values 
+# Number of correctly classified values
 correctClassified = 0
 
+# Extract features and labels
+X_train = trainingData.drop(columns='label')
+y_train = trainingData['label']
+X_test = testData.drop(columns='label')
+y_test = testData['label']
+
+# Fit Nearest Neighbors model
+nbrs = NearestNeighbors(n_neighbors=K, algorithm='auto').fit(X_train)
+
+# Find K nearest neighbors for each test instance
+distances, indices = nbrs.kneighbors(X_test)
+
 # Iterate through MNIST test data
-for i in range(testData.shape[0]):
+for i in range(len(X_test)):
 
-    # Define our lists
-    distList = []
-    tempList = []
-    c = Counter()
+    # The correct label in our current iteration
+    groundTruth = y_test.iloc[i]
 
-    # The correct lable in our current iteration
-    groundTruth = testData.loc[i,'label']
+    # Get labels of nearest neighbors
+    neighbor_labels = y_train.iloc[indices[i]]
 
-    # Check our test against each training row
-    for j in range(trainingData.shape[0]):
-        # Find euclidean distance for current vector row
-        distance = euclidean(testData.iloc[i].drop(columns='label'), trainingData.iloc[j].drop(columns='label'))
-        # Append to our list pair
-        distList.append(distancePair(distance, trainingData.loc[j, 'label']))
-        
-    # Sort the distance from least to greatest
-    # This also keeps labels paired to the distance with the distance
-    distList.sort(key=operator.attrgetter('distance'))
+    # Count the occurrences of each label
+    c = Counter(neighbor_labels)
 
-    # Make a temp list with first K labels from sorted distList
-    for m in range(K):
-        tempList.append(distList[m].label)
-
-    # Place temp into a Counter object
-    c.update(tempList)
-
-    # Get simple majority from Counter list
-    predictedLabel = c.most_common()[0][0]
+    # Get the most common label as the predicted label
+    predictedLabel = c.most_common(1)[0][0]
 
     # If our prediction is right we keep note and output it
     if predictedLabel == groundTruth:
@@ -71,13 +49,10 @@ for i in range(testData.shape[0]):
         print("\nIncorrect prediction: ", predictedLabel)
         print("Ground Truth: ", groundTruth)
 
-    # Clear the lists
-    distList.clear
-    tempList.clear
-    c.clear
-    
-# Print our accuracy 
-print("Accuracy: ", (correctClassified / testData.shape[0]) * 100, "%")
+# Calculate and print our accuracy
+accuracy = (correctClassified / len(X_test)) * 100
+print("Accuracy: ", accuracy, "%")
+
 
 
         
